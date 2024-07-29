@@ -1,27 +1,28 @@
 {
-	"name": "openapi-nitro",
-	"version": "0.1.0",
-	"description": "Automatic generation of OpenAPI spec with Swagger and Scalar + type validation with Zod",
-	"keywords": ["OpenAPI", "Swagger", "Scalar", "Typescript", "Zod", "Nitro"],
-	"author": "Magnus Bendix Borregaard <magnus.borregaard@gmail.com>",
+  "name": "openapi-nitro",
+  "version": "0.1.0",
+  "description": "Automatic generation of OpenAPI spec with Swagger and Scalar + type validation with Zod",
+  "keywords": ["OpenAPI", "Swagger", "Scalar", "Typescript", "Zod", "Nitro"],
+  "author": "Magnus Bendix Borregaard <magnus.borregaard@gmail.com>",
   "private": false,
   "type": "module",
-	"files": ["./openapi/**/*"],
-	"main": "./openapi/index.ts",
+  "files": ["./openapi/**/*"],
+  "main": "./openapi/index.ts",
   "scripts": {
     "build": "nitro build",
     "dev": "nitro dev",
     "prepare": "nitro prepare",
     "preview": "bun .output/server/index.mjs"
   },
-	"peerDependencies": {
-		"nitropack": "latest"
-	},
+  "peerDependencies": {
+    "nitropack": "latest"
+  },
   "devDependencies": {
     "nitropack": "latest"
   },
   "dependencies": {
     "zod": "^3.23.8",
-    "zod-openapi": "^2.19.0"
+    "zod-openapi": "^2.19.0",
+    "@rollup/plugin-sucrase": "^5.0.2"
   }
 }
