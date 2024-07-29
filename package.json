@@ -15,7 +15,9 @@
     "preview": "bun .output/server/index.mjs"
   },
   "peerDependencies": {
-    "nitropack": "latest"
+    "nitropack": "latest",
+		"zod": "^3.23.8",
+		"zod-openapi": "^2.19.0"
   },
   "devDependencies": {
     "nitropack": "latest"
