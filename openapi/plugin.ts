@@ -3,22 +3,25 @@ import {
 } from 'zod-openapi'
 import createScalarPage from './scalar'
 import createSwaggerPage from './swagger'
-import { doc, title } from './lib'
-import { ApiError } from './error'
-import { H3Error } from 'h3'
+import { doc } from './lib'
+import { defu } from 'defu'
+import type { ZodOpenApiObjectWithPaths } from './types'
 
 //* PLUGIN
 export default defineNitroPlugin(nitro => {
+	const spec = useRuntimeConfig().openapiSpec as Pick<ZodOpenApiObjectWithPaths, 'info' | 'servers'>
+
 	nitro.router.get('/openapi', eventHandler(event => {
-		return createDocument(doc)
+		// @ts-ignore
+		return createDocument(defu(spec, doc))
 	}))
 
 	nitro.router.get('/scalar', eventHandler(event => {
-		return createScalarPage(title)
+		return createScalarPage(spec.info.title)
 	}))
 
 	nitro.router.get('/swagger', eventHandler(event => {
-		return createSwaggerPage(title)
+		return createSwaggerPage(spec.info.title)
 	}))
 
 	nitro.hooks.hook('error', error => {

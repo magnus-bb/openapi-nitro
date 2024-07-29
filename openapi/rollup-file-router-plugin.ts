@@ -2,7 +2,6 @@ import {
 	withLeadingSlash,
 	withoutTrailingSlash,
 	withBase,
-	withoutBase,
 } from 'ufo'
 import type { InputPluginOption } from 'rollup'
 import type { Nitro } from 'nitropack'
@@ -23,7 +22,6 @@ export default function (nitro: Nitro): InputPluginOption {
 				return { map: null, code }
 			}
 
-			
 			const { route, method } = parseRouteFromFile(id, nitro)
 			
 			code = code.replace(/\b_routePath\b/g, JSON.stringify(route)).replace(/\b_routeMethod\b/g, JSON.stringify(method) ?? 'undefined')

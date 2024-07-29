@@ -23,9 +23,7 @@ export class ApiError<T = unknown> {
 	static schema<TData extends z.ZodTypeAny>(dataSchema: TData) {
 		return z.object({
 			name: z.string(),
-			statusCode: z
-				.union([z.string() as z.ZodType<StatusCode>, z.number()])
-				.transform(v => v.toString() as StatusCode),
+			statusCode: z.coerce.string(),
 			message: z.string(),
 			data: dataSchema,
 			stack: z.union([z.string(), z.array(z.string())]).optional(),

@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { normalizeRoute, defaultTags, addValidatedRoute, ApiError } from '~/openapi'
+import { addValidatedRoute, ApiError } from '~/openapi'
 
 const paramsSchema = z.object({
 	param: z.enum(['mom', 'dad']).openapi({
@@ -23,6 +23,8 @@ type Schema400 = z.infer<typeof schema400>
 
 export default addValidatedRoute({
 	path: _routePath,
+	summary: 'Say hi and get a greeting back',
+	tags: ['Greeting'],
 	method: _routeMethod,
 	params: paramsSchema,
 	query: querySchema,

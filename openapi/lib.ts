@@ -13,32 +13,21 @@ import type { MatchedMethodSuffix } from './types/file-router'
 
 extendZodWithOpenApi(z)
 
-export const title = 'My API spec'
-export const version = '1.0.0'
-export const description = `This is the API documentation for ${title}`
-
 export const doc: ZodOpenApiObjectWithPaths = {
 	openapi: '3.1.0',
 	info: {
-		title,
-		version,
-		description,
+		title: '',
+		version: '',
+		description: '',
 	},
-	servers: [
-		{
-			// const runtimeConfig = useRuntimeConfig(event)
-			// const base = runtimeConfig.app?.baseURL
-			// const url = joinURL(getRequestURL(event).origin, base)
-			url: 'Add URL here from request data',
-			description: 'Local Development Server',
-			variables: {},
-		},
-	],
+	servers: [],
 	paths: {},
 }
 
-export function addValidatedRoute<Response, Params, Query, Body>(routeConfig: {
+export function addValidatedRoute<Params, Query, Body>(routeConfig: {
 	path: string
+	summary?: string
+	tags?: string[]
 	method?: MatchedMethodSuffix
 	params?: SchemaType<Params, Record<string, string>>
 	query?: SchemaType<Query, QueryObject>
@@ -47,8 +36,7 @@ export function addValidatedRoute<Response, Params, Query, Body>(routeConfig: {
 	handler: EventHandlerWithRequestData<
 		Params extends Record<string, string> ? Params : undefined,
 		Query extends QueryObject ? Query : undefined,
-		Body extends unknown ? Body : undefined,
-		Response
+		Body extends unknown ? Body : undefined
 	>
 }) {
 	const docHasPath = routeConfig.path in doc.paths
@@ -56,9 +44,9 @@ export function addValidatedRoute<Response, Params, Query, Body>(routeConfig: {
 	const lowercaseMethod = routeConfig.method?.toLowerCase() as MatchedMethodSuffix
 	const method = lowercaseMethod ?? 'get'
 
-	// TODO: create responses object to make it easier to add
-
 	const configuration = {
+		summary: routeConfig.summary,
+		tags: routeConfig.tags,
 		requestParams: {
 			path: routeConfig.params,
 			query: routeConfig.query,
@@ -96,10 +84,7 @@ export function addValidatedRoute<Response, Params, Query, Body>(routeConfig: {
 		let statusCode: StatusCode
 		let response: unknown
 
-		const strictness = useRuntimeConfig().openapiStrictness
-		console.log('strictness ================')
-		console.log(strictness)
-		console.log('================')
+		const strictness = useRuntimeConfig(event).openapiStrictness
 
 		try {
 			// Call the defined handler and get the response
@@ -277,49 +262,6 @@ function addTypedRequestData<Params, Query, Body>(
 	Object.assign(event, { params, query, body })
 
 	return event as H3EventWithTypedRequestData<Params, Query, Body>
-}
-
-export function normalizeRoute(_route: string) {
-	const parameters: ParameterObject[] = []
-
-	let anonymousCtr = 0
-	const route = _route
-		.replace(/:(\w+)/g, (_, name) => `{${name}}`)
-		.replace(/\/(\*)\//g, () => `/{param${++anonymousCtr}}/`)
-		.replace(/\*\*{/, '{')
-		.replace(/\/(\*\*)$/g, () => `/{*param${++anonymousCtr}}`)
-
-	const paramMatches = route.matchAll(/{(\*?\w+)}/g)
-	for (const match of paramMatches) {
-		const name = match[1]
-		if (!parameters.some(p => p.name === name)) {
-			parameters.push({
-				name,
-				in: 'path',
-				required: true,
-				schema: { type: 'string' },
-			})
-		}
-	}
-
-	return {
-		route,
-		parameters,
-	}
-}
-
-export function defaultTags(route: string) {
-	const tags: string[] = []
-
-	if (route.startsWith('/api/')) {
-		tags.push('API Routes')
-	} else if (route.startsWith('/_')) {
-		tags.push('Internal')
-	} else {
-		tags.push('App Routes')
-	}
-
-	return tags
 }
 
 function getResponseSchema(responses: ZodOpenApiResponsesObject, statusCode: StatusCode): z.ZodSchema | undefined {

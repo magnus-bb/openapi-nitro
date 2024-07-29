@@ -1,10 +1,27 @@
 import openAPIModule from './openapi'
 
+export const title = 'TEST'
+export const version = '9.9.9'
+export const description = `This is the API documentation for ${title}`
+
 export default defineNitroConfig({
 	preset: 'bun',
 
 	modules: [
-		openAPIModule()
+		openAPIModule({
+			info: {
+				title,
+				version,
+				description,
+			},
+			servers: [
+				{
+					url: '/',
+					description: 'Local Development Server',
+					variables: {},
+				},
+			],
+		})
 	],
 
 	runtimeConfig: {

@@ -31,9 +31,9 @@ export interface H3EventWithTypedRequestData<Params, Query, Body>
 	body: Body
 }
 
-export type EventHandlerWithRequestData<Params, Query, Body, Response> = (
+export type EventHandlerWithRequestData<Params, Query, Body> = (
 	event: H3EventWithTypedRequestData<Params, Query, Body>
-) => Response | Promise<Response>
+) => unknown | Promise<unknown>
 
 
 //* ZOD-OPENAPI

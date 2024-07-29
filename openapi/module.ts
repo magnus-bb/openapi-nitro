@@ -1,8 +1,10 @@
 import { defu } from 'defu'
 import openAPINitroOptions from './config'
 import type { NitroModule } from 'nitropack'
+import type { ZodOpenApiObjectWithPaths} from './types'
 
-export default function(): NitroModule {
+// Pass in a partial OpenAPI spec to override the default spec
+export default function(spec?: Pick<ZodOpenApiObjectWithPaths, 'info' | 'servers'>): NitroModule {
 	return {
 		name: 'openapi',
 		setup: nitro => {
@@ -20,6 +22,16 @@ export default function(): NitroModule {
 			if (!nitro.options.runtimeConfig.openapiStrictness) {
 				nitro.options.runtimeConfig.openapiStrictness = 1
 			}
+
+			if (spec) {
+				if (!nitro.options.runtimeConfig.openapiSpec) {
+					nitro.options.runtimeConfig.openapiSpec = spec
+				} else {
+					nitro.options.runtimeConfig.openapiSpec = defu(spec, nitro.options.runtimeConfig.openapiSpec)
+				}
+			}
+
+			console.info('Running OpenAPI module with strictness set to', nitro.options.runtimeConfig.openapiStrictness)
 		},
 	}
 }
