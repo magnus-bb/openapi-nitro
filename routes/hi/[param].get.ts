@@ -5,7 +5,7 @@ const paramsSchema = z.object({
 	param: z.enum(['mom', 'dad']).openapi({
 	  description: 'A name',
 	  example: 'mom',
-	  ref: 'name',
+	  ref: 'param-get-name',
 	})
 })
 
@@ -20,8 +20,6 @@ const bodySchema = z.object({
 const responseSchema = z.object({ message: z.string() })
 
 export default addValidatedRoute({
-	// path: '/hi/{param}',
-	// method: 'get',
 	path: _routePath,
 	method: _routeMethod,
 	params: paramsSchema,
@@ -41,7 +39,7 @@ export default addValidatedRoute({
 		// const { user } = event.context // from auth middleware (write own validation in mw)
 		const { param } = event.params // from path params (already validated)
 		const { query } = event.query // from query params (already validated)
-		const { body } = event.body // no such thing (it was not passed to addValidatedRoute)
+		// const { body } = event.body // no such thing (it was not passed to addValidatedRoute)
 
 		const errorData = { stackorshit: 'This is what went wrong' }
 

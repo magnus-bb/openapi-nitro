@@ -7,6 +7,10 @@ export default defineNitroConfig({
 		openAPIModule()
 	],
 
+	runtimeConfig: {
+		openapiStrictness: 3
+	}
+
 	// apiDir: 'notapi',
 	// apiBaseURL: '/notapi',
 	// routesDir: 'notroutes',

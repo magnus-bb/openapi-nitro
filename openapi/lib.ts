@@ -43,8 +43,6 @@ export function addValidatedRoute<Response, Params, Query, Body>(routeConfig: {
 	params?: SchemaType<Params, Record<string, string>>
 	query?: SchemaType<Query, QueryObject>
 	body?: SchemaType<Body, unknown>
-	// response: z.ZodType<Response>
-	// responses: HandlerReponses<Response>
 	responses: ZodOpenApiResponsesObject
 	handler: EventHandlerWithRequestData<
 		Params extends Record<string, string> ? Params : undefined,
@@ -58,13 +56,6 @@ export function addValidatedRoute<Response, Params, Query, Body>(routeConfig: {
 	const lowercaseMethod = routeConfig.method?.toLowerCase() as MatchedMethodSuffix
 	const method = lowercaseMethod ?? 'get'
 
-	// const responses = Object.fromEntries(Object.entries(routeConfig.responses).map(([statuscode, response]) => [statuscode, {
-	// 	...response,
-	// 	content: {
-	// 		'application/json': { schema: response.schema },
-	// 	}
-	// }]))
-
 	// TODO: create responses object to make it easier to add
 
 	const configuration = {
@@ -77,15 +68,6 @@ export function addValidatedRoute<Response, Params, Query, Body>(routeConfig: {
 				'application/json': { schema: routeConfig.body },
 			},
 		},
-		// responses: {
-		// 	'200': {
-		// 		description: '200 OK',
-		// 		content: {
-		// 			'application/json': { schema: routeConfig.response },
-		// 		},
-		// 	},
-		// },
-		
 		responses: routeConfig.responses
 	}
 
@@ -111,29 +93,67 @@ export function addValidatedRoute<Response, Params, Query, Body>(routeConfig: {
 			Body extends unknown ? Body : undefined
 		>(event, params, query, body)
 
-		const code: StatusCode = eventWithTypedRequestData.node.res.statusCode.toString() as StatusCode
+		let statusCode: StatusCode
 		let response: unknown
+
+		const strictness = useRuntimeConfig().openapiStrictness
+		console.log('strictness ================')
+		console.log(strictness)
+		console.log('================')
 
 		try {
 			// Call the defined handler and get the response
-			response = await routeConfig.handler(eventWithTypedRequestData)
-		} catch (err) {
-			// If error is H3Error or ApiError (explicitly thrown) and we have defined a response schema for it, we should validate it
-			if (errorIsIntentional(err) && err.statusCode in routeConfig.responses) {
-				// Check that returned error matches response schema
-				const schema = getResponseSchema(routeConfig.responses, err.statusCode.toString() as StatusCode)
-				const parsed = schema.safeParse(err.data)
+			response = await routeConfig.handler(eventWithTypedRequestData) // statusCode might have been changed in here, so only check it after this line
 
-				// If error is not correctly formatted, send a 500 validation error
-				if (!parsed.success) {
-					throw new ValidationError({ internal: true, data: parsed.error })
+			statusCode = eventWithTypedRequestData.node.res.statusCode.toString() as StatusCode
+		} catch (err) {
+			if (errorIsIntentional(err)) {
+				const schema = getResponseSchema(routeConfig.responses, err.statusCode.toString() as StatusCode)
+
+				// If error is H3Error or ApiError (intentionally thrown) and we have defined a response schema for it, we should validate it
+				if (schema) {
+					const parsed = schema.safeParse(err)
+
+					if (!parsed.success) {
+						switch (strictness) {
+							case 1: {
+								console.warn('Response did not match the OpenAPI schema for the given status code', parsed.error)
+							}
+							case 0: {
+								throw err
+							}
+							case 2: 
+							case 3: 
+							default: {
+								// If error is not correctly formatted, send a 500 validation error
+								throw new ValidationError({ internal: true, data: parsed.error })
+							}
+						}
+					}
+
+					// If error is correctly formatted, send it to the user
+					throw parsed.data
 				}
-				
-				// If error is correctly formatted, send it to the user
-				throw err
+
+				// If error is intentionally thrown, but has no schema
+				switch (strictness) {
+					case 1:
+					case 2: {
+						console.warn('Could not find schema for response with the given status code', err)
+					}
+					case 0: {
+						throw err
+					}
+					case 3: {
+						throw new ValidationError({ internal: true, data: err })
+					}
+					default: {
+						throw err
+					}
+				}
 			}
 
-			// If error is a generic error (no explicit statusCode), we wrap it and send it to the user as a 500 error
+			// If error is not intentional, we wrap it as generic error and send it to the user as a 500 error
 			if (err instanceof Error) {
 				throw new ApiError({ name: err.name, statusCode: 500, message: err.message, data: err.cause, stack: err.stack })
 			}
@@ -143,16 +163,46 @@ export function addValidatedRoute<Response, Params, Query, Body>(routeConfig: {
 		}
 
 		// If there were no errors in the handler, we validate the non-error response
-		const schema = getResponseSchema(routeConfig.responses, code)
-		const parsed = schema.safeParse(response)
+		const schema = getResponseSchema(routeConfig.responses, statusCode)
 
-		// If response is not correctly formatted, send a 500 validation error
-		if (!parsed.success) {
-			throw new ValidationError({ internal: true, data: parsed.error })
+		if (schema) {
+			const parsed = schema.safeParse(response)
+
+			if (!parsed.success) {
+				switch (strictness) {
+					case 1: {
+						console.warn('Response did not match the OpenAPI schema for the given status code', parsed.error)
+					}
+					case 0: {
+						throw response
+					}
+					case 2: 
+					case 3: 
+					default: {
+						// If response is not correctly formatted, send a 500 validation error
+						throw new ValidationError({ internal: true, data: parsed.error })
+					}
+				}
+			}
+
+			// If response is correctly formatted, send it to the user
+			return parsed.data
 		}
 
-		// If everything worked, send the parsed (and potentially transformed) response to the user
-		return parsed.data
+		// If we cannot find schema for response
+		switch (strictness) {
+			case 1:
+			case 2: {
+				console.warn('Could not find schema for response with the given status code', response)
+			}
+			case 0: {
+				return response
+			}
+			case 3:
+			default: {
+				throw new ValidationError({ internal: true, data: response })
+			}
+		}
 	})
 }
 
@@ -272,13 +322,10 @@ export function defaultTags(route: string) {
 	return tags
 }
 
-function getResponseSchema(responses: ZodOpenApiResponsesObject, statusCode: StatusCode): z.ZodSchema {
-	if (!('content' in responses[statusCode]) || !(responses[statusCode].content?.['application/json'])) {
-		throw new ValidationError({ internal: true, message: 'Response validation schema not found', data: {
-			statusCodeLookup: statusCode,
-			responses
-		} })
+function getResponseSchema(responses: ZodOpenApiResponsesObject, statusCode: StatusCode): z.ZodSchema | undefined {
+	if (responses[statusCode] && 'content' in responses[statusCode] && responses[statusCode].content?.['application/json']?.schema) {
+		return responses[statusCode].content['application/json'].schema as z.ZodSchema
 	}
 
-	return responses[statusCode].content['application/json'].schema as z.ZodSchema
+	return undefined
 }

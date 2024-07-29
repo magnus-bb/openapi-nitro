@@ -4,6 +4,8 @@ import {
 import createScalarPage from './scalar'
 import createSwaggerPage from './swagger'
 import { doc, title } from './lib'
+import { ApiError } from './error'
+import { H3Error } from 'h3'
 
 //* PLUGIN
 export default defineNitroPlugin(nitro => {
@@ -18,4 +20,9 @@ export default defineNitroPlugin(nitro => {
 	nitro.router.get('/swagger', eventHandler(event => {
 		return createSwaggerPage(title)
 	}))
+
+	nitro.hooks.hook('error', error => {
+		// Since errors are used to send responses, nitro does not log them by default
+		console.error(error.cause ?? error)
+	})
 })

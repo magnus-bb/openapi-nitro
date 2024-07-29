@@ -42,6 +42,11 @@ export interface ZodOpenApiObjectWithPaths extends ZodOpenApiObject {
 }
 
 export type StatusCode = `${1 | 2 | 3 | 4 | 5}${string}`
+export const statusCodeSchema = z.string().refine((code) => {
+	return code.match(/^[1-5]\d{2}$/) !== null
+}) as z.ZodType<StatusCode>
+
+type A = z.infer<typeof statusCodeSchema>
 
 export interface ZodOpenApiResponses {
 	default?: ZodOpenApiResponseObject;
