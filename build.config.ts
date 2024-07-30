@@ -6,5 +6,6 @@ export default defineBuildConfig({
 		dts: {
 			respectExternal: false
 		}
-	}
+	},
+	failOnWarn: false
 })

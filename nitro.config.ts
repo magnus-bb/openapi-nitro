@@ -7,6 +7,10 @@ export const description = `This is the API documentation for ${title}`
 export default defineNitroConfig({
 	preset: 'bun',
 
+	rootDir: '.',
+	
+	srcDir: 'playground',
+
 	modules: [
 		openAPIModule({
 			info: {
