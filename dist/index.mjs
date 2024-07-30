@@ -31,8 +31,8 @@ function openAPINitroOptions(nitro) {
     typescript: {
       strict: true
     },
-    plugins: [resolve(_dirname, "plugin.ts")],
-    errorHandler: resolve(_dirname, "error.ts"),
+    plugins: [resolve(_dirname, "plugin")],
+    errorHandler: resolve(_dirname, "error"),
     esbuild: {
       options: {
         target: [
