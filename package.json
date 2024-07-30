@@ -1,6 +1,6 @@
 {
   "name": "openapi-nitro",
-  "version": "0.1.6",
+  "version": "0.1.8",
   "description": "Automatic generation of OpenAPI spec with Swagger and Scalar + type validation with Zod",
   "keywords": ["OpenAPI", "Swagger", "Scalar", "Typescript", "Zod", "Nitro"],
   "author": "Magnus Bendix Borregaard <magnus.borregaard@gmail.com>",
@@ -12,7 +12,8 @@
 	"exports": {
 		".": {
 			"import": "./dist/index.mjs",
-			"types": "./dist/index.d.ts"
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.mjs"
 		}
 	},
   "files": ["dist"],
