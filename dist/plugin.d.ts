@@ -1,2 +1,3 @@
-declare const _default: any;
+import type { NitroAppPlugin } from 'nitropack';
+declare const _default: NitroAppPlugin;
 export default _default;

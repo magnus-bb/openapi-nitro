@@ -5,7 +5,7 @@ import createScalarPage from "./scalar/index.mjs";
 import createSwaggerPage from "./swagger/index.mjs";
 import { doc } from "./lib.mjs";
 import { defu } from "defu";
-export default defineNitroPlugin((nitro) => {
+export default (nitro) => {
   const spec = useRuntimeConfig().openapiSpec;
   nitro.router.get("/openapi", eventHandler((event) => {
     return createDocument(defu(spec, doc));
@@ -19,4 +19,4 @@ export default defineNitroPlugin((nitro) => {
   nitro.hooks.hook("error", (error) => {
     console.error(error.cause ?? error);
   });
-});
+};

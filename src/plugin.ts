@@ -6,9 +6,10 @@ import createSwaggerPage from './swagger'
 import { doc } from './lib'
 import { defu } from 'defu'
 import type { ZodOpenApiObjectWithPaths } from './types'
+import type {  NitroAppPlugin } from 'nitropack'
 
 //* PLUGIN
-export default defineNitroPlugin(nitro => {
+export default <NitroAppPlugin>(nitro => {
 	const spec = useRuntimeConfig().openapiSpec as Pick<ZodOpenApiObjectWithPaths, 'info' | 'servers'>
 
 	nitro.router.get('/openapi', eventHandler(event => {
