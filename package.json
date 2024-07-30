@@ -1,6 +1,6 @@
 {
   "name": "openapi-nitro",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Automatic generation of OpenAPI spec with Swagger and Scalar + type validation with Zod",
   "keywords": ["OpenAPI", "Swagger", "Scalar", "Typescript", "Zod", "Nitro"],
   "author": "Magnus Bendix Borregaard <magnus.borregaard@gmail.com>",
