@@ -1,6 +1,6 @@
 import { defu } from 'defu'
 // import openAPINitroOptions from '../runtime/config'
-import type { ZodOpenApiObjectWithPaths} from '../runtime/types'
+import type { ZodOpenApiObjectWithPaths} from './types'
 import type { NitroModule } from 'nitropack'
 import { fileURLToPath } from 'node:url'
 import type { NitroOptions, Nitro } from 'nitropack'
@@ -10,14 +10,14 @@ import {
 	withBase,
 } from 'ufo'
 import type { InputPluginOption } from 'rollup'
-import type { MatchedEnvSuffix, MatchedMethodSuffix } from '../runtime/types/file-router'
+import type { MatchedEnvSuffix, MatchedMethodSuffix } from './types/file-router'
 import { dirname, resolve } from "pathe"
 
 const _dirname = typeof __dirname !== "undefined"
   ? __dirname
   : dirname(fileURLToPath(import.meta.url));
 
-const runtime = resolve(_dirname, "../runtime");
+// const runtime = resolve(_dirname, "runtime");
 
 
 // Pass in a partial OpenAPI spec to override the default spec
@@ -60,9 +60,9 @@ function openAPINitroOptions(nitro: Nitro): NitroOptions {
 			strict: true,
 		},
 
-		plugins: [resolve(runtime, 'plugin.ts')],
+		plugins: [resolve(_dirname, 'plugin.ts')],
 
-		errorHandler: resolve(runtime, 'error.ts'),
+		errorHandler: resolve(_dirname, 'error.ts'),
 
 		esbuild: {
 			options: {

@@ -1,58 +1,11 @@
-import { defu } from "defu";
-import { fileURLToPath } from "node:url";
 import {
   withLeadingSlash,
   withoutTrailingSlash,
   withBase
 } from "ufo";
-import { dirname, resolve } from "pathe";
-const _dirname = typeof __dirname !== "undefined" ? __dirname : dirname(fileURLToPath(import.meta.url));
-export default function(spec) {
-  return {
-    name: "openapi",
-    setup: (nitro) => {
-      nitro.options = defu(openAPINitroOptions(nitro), nitro.options);
-      if (!nitro.options.runtimeConfig.openapiStrictness) {
-        nitro.options.runtimeConfig.openapiStrictness = 1;
-      }
-      if (spec) {
-        if (!nitro.options.runtimeConfig.openapiSpec) {
-          nitro.options.runtimeConfig.openapiSpec = spec;
-        } else {
-          nitro.options.runtimeConfig.openapiSpec = defu(spec, nitro.options.runtimeConfig.openapiSpec);
-        }
-      }
-      console.info("Running OpenAPI module with strictness set to", nitro.options.runtimeConfig.openapiStrictness);
-    }
-  };
-}
-function openAPINitroOptions(nitro) {
-  return {
-    typescript: {
-      strict: true
-    },
-    plugins: [resolve(_dirname, "plugin.ts")],
-    errorHandler: resolve(_dirname, "error.ts"),
-    esbuild: {
-      options: {
-        target: [
-          "esnext"
-          // makes import.meta work
-        ]
-      }
-    },
-    inlineDynamicImports: true,
-    // important to make sure routes in /routes are not lazily loaded (which will make addValidatedRoute not run before route is first hit)
-    rollupConfig: {
-      plugins: [
-        fileRouterPlugin(nitro)
-      ]
-    }
-  };
-}
 const _routePathRegex = /\b_routePath\b/g;
 const _routeMethodRegex = /\b_routeMethod\b/g;
-function fileRouterPlugin(nitro) {
+export default function(nitro) {
   return {
     name: "file-router",
     transform(code, id) {

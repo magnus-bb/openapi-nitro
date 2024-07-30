@@ -24,8 +24,7 @@
     }
   },
   "files": [
-    "dist",
-    "runtime"
+    "dist"
   ],
   "scripts": {
     "build": "unbuild",
