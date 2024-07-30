@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { normalizeRoute, defaultTags, addValidatedRoute } from '~/openapi'
+import { normalizeRoute, defaultTags, addValidatedRoute } from '~/src'
 
 const paramsSchema = z.object({
 	param: z.enum(['mom', 'dad']).openapi({

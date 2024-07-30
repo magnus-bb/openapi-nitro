@@ -1,4 +1,4 @@
-import openAPIModule from './openapi'
+import openAPIModule from './src'
 
 export const title = 'TEST'
 export const version = '9.9.9'

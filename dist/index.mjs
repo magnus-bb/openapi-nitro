@@ -79,17 +79,7 @@ function openAPINitroOptions(nitro) {
     inlineDynamicImports: true,
     // important to make sure routes in /routes are not lazily loaded (which will make addValidatedRoute not run before route is first hit)
     rollupConfig: {
-      // input: fileURLToPath(new URL('index.ts', import.meta.url)),
-      // output: {
-      // 	dir: './dist',
-      // 	format: 'cjs',
-      // 	exports: 'named'
-      // },
       plugins: [
-        // sucrase({
-        // 	exclude: ['node_modules/**'],
-        // 	transforms: ['typescript'],
-        // }),
         fileRouterPlugin(nitro)
       ]
     }

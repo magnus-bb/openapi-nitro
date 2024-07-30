@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { addValidatedRoute, ApiError } from '~/openapi'
+import { addValidatedRoute, ApiError } from '~/src'
 
 const paramsSchema = z.object({
 	param: z.enum(['mom', 'dad']).openapi({

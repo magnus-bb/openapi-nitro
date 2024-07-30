@@ -8,7 +8,6 @@ import { ApiError, ValidationError, UnknownError, H3ErrorToValidationError, H3Er
 import type { ZodOpenApiResponsesObject } from 'zod-openapi'
 import type { SchemaType, QueryObject, H3EventWithTypedRequestData, EventHandlerWithRequestData, ZodOpenApiObjectWithPaths, StatusCode} from './types'
 import type { H3Event, EventHandlerRequest } from 'h3'
-import type { ParameterObject } from 'openapi-typescript'
 import type { MatchedMethodSuffix } from './types/file-router'
 
 extendZodWithOpenApi(z)
