@@ -60,9 +60,9 @@ function openAPINitroOptions(nitro: Nitro): NitroOptions {
 			strict: true,
 		},
 
-		plugins: [resolve(_dirname, 'plugin.ts')],
+		plugins: [resolve(_dirname, 'plugin')],
 
-		errorHandler: resolve(_dirname, 'error.ts'),
+		errorHandler: resolve(_dirname, 'error'),
 
 		esbuild: {
 			options: {
